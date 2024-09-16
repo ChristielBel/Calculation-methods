@@ -1,26 +1,21 @@
 import math
 
-# Первые два члена
-pi_sq_over_6 = math.pi**2 / 6
-pi_4_over_90 = math.pi**4 / 90
+const1 = math.pi ** 2 / 6
+const2 = math.pi ** 4 / 90
 
-# Вычисление суммы ряда 1/n^4(n^2 + 1)
-def remainder_series(tolerance=1e-10):
+
+def series(tolerance=1e-10):
     sum_remainder = 0.0
     n = 1
-    while True:
-        term = 1 / (n**4 * (n**2 + 1))
-        if term < tolerance:
-            break
+    term = 1 / (n ** 4 * (n ** 2 + 1))
+
+    while term >= tolerance:
         sum_remainder += term
         n += 1
-    return sum_remainder
+        term = 1 / (n ** 4 * (n ** 2 + 1))
 
-# Полная сумма
-def full_sum():
-    remainder = remainder_series()
-    return pi_sq_over_6 - pi_4_over_90 + remainder
+    return const1 - const2 + sum_remainder
 
-# Вычисление
-result = full_sum()
+
+result = series()
 print(f"Сумма ряда: {result:.10f}")

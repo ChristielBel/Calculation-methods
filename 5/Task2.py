@@ -12,8 +12,23 @@ def chebyshev_nodes(n):
 
 # Интерполяция Лагранжа
 def lagrange_interpolation(x, nodes, values):
-    poly = lagrange(nodes, values)
-    return poly(x)
+    n = len(nodes)  # Количество узлов
+    result = np.zeros_like(x, dtype=float)  # Массив для хранения результатов интерполяции
+
+    # Вычисляем полином Лагранжа для каждого значения x
+    for i in range(n):
+        # Начинаем с базисного полинома l_i(x), который изначально равен 1
+        li = np.ones_like(x, dtype=float)
+
+        # Строим l_i(x)
+        for j in range(n):
+            if i != j:
+                li *= (x - nodes[j]) / (nodes[i] - nodes[j])
+
+        # Добавляем вклад y_i * l_i(x) в общий результат
+        result += values[i] * li
+
+    return result
 
 # Параметры
 x_vals = np.linspace(-1, 1, 500)  # Точки для построения графика

@@ -6,7 +6,7 @@ n = 15  # variant number
 N = 100  # Number of random points
 
 # Determine A and B based on n
-A = n + 10 #там было =, так что не ебу + или -, но с + прикольнее
+A = n = 10
 B = n - 10
 
 

@@ -1,9 +1,6 @@
 import cmath  # Для работы с комплексными числами
 import numpy as np
 
-# Машинное эпсилон
-epsilon = np.finfo(float).eps
-
 def cardano(a, b, c):
     """
     Решение кубического уравнения методом Кардано.
@@ -128,13 +125,6 @@ alpha_values = [10**-5, 10**0, 10**5, 10**10, 10**12]
 cardano_error_analysis(alpha_values)
 print()
 print("Метод Ньютона")
-initial_guesses = [-10, 0, 10]
 alpha_values = [10**-5, 10**0, 10**5, 10**10, 10**12]
-
-for alpha in alpha_values:
-    for x0 in initial_guesses:
-        try:
-            root = newton(alpha, x0)
-            print(f"α = {alpha}, Начальное приближение: {x0}, Корень: {root}")
-        except Exception as e:
-            print(f"α = {alpha}, Начальное приближение: {x0}, Ошибка: {e}")
+initial_guesses = [-10, 0, 10]
+newton_error_analysis(alpha_values, initial_guesses)

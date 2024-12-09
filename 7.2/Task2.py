@@ -78,3 +78,4 @@ if __name__ == "__main__":
 
     print("Exploring extinction conditions...")
     display_final_results(extinction_conditions)
+

@@ -1,4 +1,7 @@
 import numpy as np
+import tkinter as tk
+from tkinter import ttk
+from tkinter import messagebox
 import matplotlib.pyplot as plt
 from tabulate import tabulate
 
@@ -66,16 +69,6 @@ def exact_solution(x, t):
     return np.exp(-t)[:, None] * np.sin(x)
 
 
-def print_results_table(x, u_explicit, u_implicit, u_exact, t_idx):
-    print(f"\nРезультаты на временном шаге t = {t_idx}:")
-    headers = ["x", "Явная схема", "Неявная схема", "Точное решение"]
-    table = []
-    for i in range(len(x)):
-        table.append(
-            [f"{x[i]:.4f}", f"{u_explicit[t_idx, i]:.4f}", f"{u_implicit[t_idx, i]:.4f}", f"{u_exact[t_idx, i]:.4f}"])
-    print(tabulate(table, headers=headers, tablefmt="grid", numalign="center", stralign="center"))
-
-
 def plot_results(x, t, u_explicit, u_implicit, u_exact):
     T_idx = len(t) - 1  # Последний временной шаг
 
@@ -92,33 +85,77 @@ def plot_results(x, t, u_explicit, u_implicit, u_exact):
     plt.show()
 
 
-def get_user_input():
+def run_solution():
     try:
-        L = float(input("Введите длину области L (по умолчанию: pi/2): ") or (np.pi / 2))
-        T = float(input("Введите время T (по умолчанию: 1.0): ") or 1.0)
-        dx = float(input("Введите шаг по пространству dx (по умолчанию: 0.1): ") or 0.1)
-        dt = float(input("Введите шаг по времени dt (по умолчанию: 0.005): ") or 0.005)
-        return L, T, dx, dt
+        L = float(entry_L.get())
+        T = float(entry_T.get())
+        dx = float(entry_dx.get())
+        dt = float(entry_dt.get())
+
+        x, t, u_explicit = explicit_scheme(dx, dt, T, L)
+        x, t, u_implicit = implicit_scheme(dx, dt, T, L)
+        u_exact = exact_solution(x, t)
+
+        T_idx = len(t) - 1  # Индекс последнего временного шага
+
+        # Очищаем старую таблицу
+        for row in tree.get_children():
+            tree.delete(row)
+
+        # Заполняем таблицу результатами
+        for i in range(len(x)):
+            tree.insert("", "end", values=(f"{x[i]:.4f}",
+                                           f"{u_explicit[T_idx, i]:.4f}",
+                                           f"{u_implicit[T_idx, i]:.4f}",
+                                           f"{u_exact[T_idx, i]:.4f}"))
+
+        # Строим график
+        plot_results(x, t, u_explicit, u_implicit, u_exact)
     except ValueError:
-        print("Некорректный ввод. Используются значения по умолчанию.")
-        return np.pi / 2, 1.0, 0.1, 0.005
+        messagebox.showerror("Ошибка ввода", "Пожалуйста, введите корректные значения.")
 
 
-def main():
-    # Ввод параметров
-    print("Добро пожаловать в решатель уравнения теплопроводности.")
-    L, T, dx, dt = get_user_input()
+# Создаем главное окно
+root = tk.Tk()
+root.title("Решатель уравнения теплопроводности")
 
-    x, t, u_explicit = explicit_scheme(dx, dt, T, L)
-    x, t, u_implicit = implicit_scheme(dx, dt, T, L)
-    u_exact = exact_solution(x, t)
+# Ввод параметров
+frame_input = ttk.LabelFrame(root, text="Параметры")
+frame_input.grid(row=0, column=0, padx=10, pady=10)
 
-    # Вывод результатов в консоль в виде таблицы
-    print_results_table(x, u_explicit, u_implicit, u_exact, len(t) - 1)
+ttk.Label(frame_input, text="Длина области L:").grid(row=0, column=0, padx=5, pady=5)
+entry_L = ttk.Entry(frame_input)
+entry_L.grid(row=0, column=1, padx=5, pady=5)
+entry_L.insert(0, str(np.pi / 2))
 
-    # Построение графиков результатов
-    plot_results(x, t, u_explicit, u_implicit, u_exact)
+ttk.Label(frame_input, text="Время T:").grid(row=1, column=0, padx=5, pady=5)
+entry_T = ttk.Entry(frame_input)
+entry_T.grid(row=1, column=1, padx=5, pady=5)
+entry_T.insert(0, "1.0")
 
+ttk.Label(frame_input, text="Шаг по x (dx):").grid(row=2, column=0, padx=5, pady=5)
+entry_dx = ttk.Entry(frame_input)
+entry_dx.grid(row=2, column=1, padx=5, pady=5)
+entry_dx.insert(0, "0.1")
 
-if __name__ == "__main__":
-    main()
+ttk.Label(frame_input, text="Шаг по t (dt):").grid(row=3, column=0, padx=5, pady=5)
+entry_dt = ttk.Entry(frame_input)
+entry_dt.grid(row=3, column=1, padx=5, pady=5)
+entry_dt.insert(0, "0.005")
+
+# Кнопка для запуска решения
+btn_run = ttk.Button(root, text="Запустить решение", command=run_solution)
+btn_run.grid(row=1, column=0, padx=10, pady=10)
+
+# Таблица для отображения результатов
+frame_table = ttk.LabelFrame(root, text="Результаты")
+frame_table.grid(row=2, column=0, padx=10, pady=10)
+
+columns = ("x", "Явная схема", "Неявная схема", "Точное решение")
+tree = ttk.Treeview(frame_table, columns=columns, show="headings")
+tree.grid(row=0, column=0, padx=5, pady=5)
+
+for col in columns:
+    tree.heading(col, text=col)
+
+root.mainloop()

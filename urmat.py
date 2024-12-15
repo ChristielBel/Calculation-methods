@@ -23,6 +23,8 @@ def explicit_scheme(dx, dt, T, L):
     u[:, -1] = np.exp(-t)
 
     r = dt / dx ** 2
+    if r > 0.5:
+        raise ValueError("Схема нестабильна! Уменьшите dt или увеличьте dx.")
 
     # Явная разностная схема
     for n in range(0, Nt - 1):
@@ -49,6 +51,8 @@ def implicit_scheme(dx, dt, T, L):
     u[:, -1] = np.exp(-t)
 
     r = dt / dx ** 2
+    if r > 0.5:
+        raise ValueError("Схема нестабильна! Уменьшите dt или увеличьте dx.")
 
     # Матрица для неявной схемы
     A = np.zeros((Nx - 2, Nx - 2))
